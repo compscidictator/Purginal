@@ -1,4 +1,4 @@
-namespace Purginal.StateProviders
+namespace Purginal.Common.StateProviders
 {
     public class Registration{
         public string FirstName { get; set; }

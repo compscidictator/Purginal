@@ -1,0 +1,94 @@
+﻿@page
+@using Purginal.Common.Models;
+@using Purginal.Website.Models;
+@using Microsoft.Extensions.Logging;
+@inject SignInManager<ApplicationUser> SignInManager
+@inject ILogger<LoginViewModel> _logger
+@{
+    ViewBag.Title = "Log in";
+}
+@functions {
+    [BindProperty]
+    public LoginViewModel LoginViewModel { get; set; }
+
+    public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+    {
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, change to lockoutOnFailure: true
+        var result = await SignInManager.PasswordSignInAsync(LoginViewModel.Email, LoginViewModel.Password, LoginViewModel.RememberMe, lockoutOnFailure: false);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation("Logged in {userName}.", LoginViewModel.Email);
+            return Redirect(returnUrl);
+        }
+        if (result.RequiresTwoFactor)
+        {
+            return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = LoginViewModel.RememberMe });
+        }
+        if (result.IsLockedOut)
+        {
+            return Redirect("Lockout");
+        }
+        else
+        {
+            _logger.LogWarning("Failed to log in {userName}.", LoginViewModel.Email);
+            ModelState.AddModelError("", "Invalid login attempt.");
+            return Page();
+        }
+    }
+}
+
+<h2>@ViewBag.Title.</h2>
+<div class="row">
+    <div class="col-md-12">
+        <section id="loginForm">
+            <form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewBag.ReturnUrl" method="post" class="form-horizontal" role="form">
+                <h4>Use a local account to log in.</h4>
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="LoginViewModel.Email" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <input asp-for="LoginViewModel.Email" class="form-control" />
+                        <span asp-validation-for="LoginViewModel.Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LoginViewModel.Password" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <input asp-for="LoginViewModel.Password" class="form-control" />
+                        <span asp-validation-for="LoginViewModel.Password" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <div class="checkbox">
+                            <input asp-for="LoginViewModel.RememberMe" />
+                            <label asp-for="LoginViewModel.RememberMe"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Log in" class="btn btn-default" />
+                    </div>
+                </div>
+                <p>
+                    <a asp-page="Account/Register">Register as a new user?</a>
+                </p>
+                <p>
+                    <a asp-page="Account/ForgotPassword">Forgot your password?</a>
+                </p>
+            </form>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

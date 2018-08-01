@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 
-namespace Purginal.StateProviders
+namespace Purginal.Common.StateProviders
 {
 
     public class WARegistrationProvider : IStateProvider

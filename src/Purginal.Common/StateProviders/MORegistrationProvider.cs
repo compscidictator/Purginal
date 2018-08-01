@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Purginal.StateProviders
+namespace Purginal.Common.StateProviders
 {
     public class MORegistrationProvider : IStateProvider
     {
